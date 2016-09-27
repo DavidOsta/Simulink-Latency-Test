@@ -19,7 +19,7 @@ You can select following parameters:
   * Simulation time in seconds (only at your station)
 
 <p align="center">
-![Alt text](/figs/gui.png?raw=true "Output")
+![Alt text](/figs/gui.png?raw=true "GUI")
 </p>
 
 For the first time it is necessary to install boards
