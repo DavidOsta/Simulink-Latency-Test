@@ -2,7 +2,10 @@
 Matlab script for testing latency between two simulink models in Prague and
  Boston.
 
- Scripts were tested only on windows machines.
+ Script was tested only on windows machines, for the versions:
+  * 2013B
+  * 2014B
+  * 2015B
 
 ## How to use it
 For the first time it is necessary to do following steps:

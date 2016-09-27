@@ -1,5 +1,6 @@
 function [] = configure_parameters(name_of_simulink_model, decimal_ip,...
-                                   location, in_sample_time, out_sample_time)
+                                   ports_combination, station,...
+                                   in_sample_time, out_sample_time)
 
 %% Info
 %  used only in main scripts 'main_PRG', 'main_BOS'
@@ -11,7 +12,7 @@ sim_model = strcat(name_of_simulink_model,'/'); % 'plant_PRG/';
 
 %% Define Parameters
 % select ports
-[ports_A, ports_B] = get_ports(location);
+[ports_A, ports_B] = get_ports(station, ports_combination);
 
 %% Input/Output blocks
 

@@ -5,7 +5,7 @@ function process_and_plot_data(path)
 % e.g - process_and_plot_data('testSample')
 
 %% Processing
-addpath('measured_data');
+%addpath('measured_data');
 data_path = sprintf('measured_data/%s/latency_data',path);
 data = load(data_path);
 
