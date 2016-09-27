@@ -186,7 +186,7 @@ end
 
 function [ip_address, version,...
           ports, station] = resolve_inputs(handles)
-      
+
 % resolves - ip addres
 selected_ip_address = get(handles.ip_address_edit, 'String');
 % check IP address
