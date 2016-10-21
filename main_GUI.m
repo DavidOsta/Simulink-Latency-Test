@@ -22,7 +22,7 @@ function varargout = main_GUI(varargin)
 
 % Edit the above text to modify the response to help main_GUI
 
-% Last Modified by GUIDE v2.5 27-Sep-2016 19:08:15
+% Last Modified by GUIDE v2.5 17-Oct-2016 21:25:35
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -157,14 +157,20 @@ load_base_workspace(handles)
 main(ip_address, version, ports, station);
 
 
-% --- Executes on button press in checkports_button.
-function checkports_button_Callback(hObject, eventdata, handles)
+% --- Executes on button press in setup_boards_button.
+function setup_boards_button_Callback(hObject, eventdata, handles)
 
 [ip_address, version,...
  ports, station] = resolve_inputs(handles);
 
 setup_boards(ip_address, version, ports);
 
+% --- Executes on button press in check_ports_button.
+function check_ports_button_Callback(hObject, eventdata, handles)
+[ip_address, version,...
+ ports, station] = resolve_inputs(handles);
+
+test_ports(version, station, ip_address, ports);
 
 function simulation_time_edit_Callback(hObject, eventdata, handles)
 % hObject    handle to simulation_time_edit (see GCBO)
@@ -227,3 +233,6 @@ function add_paths()
     addpath('functions',...
             'measured_data');
     addpath(genpath('sim_models'))
+
+
+

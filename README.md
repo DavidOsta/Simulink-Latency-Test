@@ -19,7 +19,7 @@ You can select following parameters:
   * Simulation time in seconds (only at your station)
 
 <p align="center">
-![Alt text](/figs/gui.png?raw=true "GUI")
+![gui](/figs/gui.png?raw=true "GUI")
 </p>
 
 For the first time it is necessary to install boards
@@ -43,9 +43,7 @@ Otherwise just select parameters and click on **Run**
 
 ## Output for controller station should look like this
 
-<!-- ![Alt text](/relative/path/to/img.jpg?raw=true "Optional Title") -->
-![Alt text](/figs/output.png?raw=true "Output")
-
+![output](/figs/output.png?raw=true "Output")
 
  * you can also plot old simulation results, stored in the folder **measured_data**,
-    by function: **process_and_plot_data('filename')**
+    by function: **plot_data('filename')**

@@ -1,4 +1,4 @@
-function process_and_plot_data(path)
+function plot_data(path)
 
 % Process and visualize measured data
 % arg - filename in the 'measured_data' folder,
@@ -108,9 +108,9 @@ ylim_curr = get(latency,'ylim');
 if(ylim_curr(1) >= 0); ylim_curr(1) = 0; end;
 set(latency,'ylim', ylim_curr); % change lower limit
 title(latency, 'Latency during simulation','FontSize', 15);
-legend(latency, [A_tick_ok B_tick_ok A_tick_err B_tick_err],...
-                'A tick', 'B tick', 'A miss', 'B miss',...
-                'Location', 'eastoutside' );
+% legend(latency, [A_tick_ok B_tick_ok A_tick_err B_tick_err],...
+%                 'A tick', 'B tick', 'A miss', 'B miss',...
+%                 'Location', 'eastoutside' );
 
 % linking subplot 1 and 2
 linkaxes([response,latency], 'x');

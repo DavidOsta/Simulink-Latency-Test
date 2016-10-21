@@ -19,7 +19,7 @@ else % controller
     results = run_controller(ip_address, model_name);
     
     % plot results
-    process_and_plot_data(results);
+    % plot_data(results);
 end
 
 

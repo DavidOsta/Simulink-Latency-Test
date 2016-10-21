@@ -27,9 +27,14 @@ if strcmp(block_lib, 'sldrtlib') || strcmp(block_lib, 'rtwinlib') % real-time li
               
 elseif strcmp(block_lib, 'dspnetwork')  % dsp lib
     % set
-    set_param(block_name, 'remotePort', port, ...
-                          'remoteURL' , sprintf('''%s''', decimal_ip));
-
+    if(isempty(strfind(block_name, 'in'))) % sending block
+        set_param(block_name, 'remotePort', port, ...
+                              'remoteURL' , sprintf('''%s''', decimal_ip));
+    else % receiving block 
+        set_param(block_name, 'localPort', port, ...
+                              'remoteURL' , sprintf('''%s''', decimal_ip),...
+                              'sampletime', '0.1');
+    end
 else
     fprintf('Block ''%s'' is from invalid library\n', block_name);
 end
