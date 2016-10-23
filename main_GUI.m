@@ -22,7 +22,7 @@ function varargout = main_GUI(varargin)
 
 % Edit the above text to modify the response to help main_GUI
 
-% Last Modified by GUIDE v2.5 17-Oct-2016 21:25:35
+% Last Modified by GUIDE v2.5 22-Oct-2016 14:46:12
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -148,29 +148,44 @@ end
 
 % --- Executes on button press in run_button.
 function run_button_Callback(hObject, eventdata, handles)
-
-[ip_address, version,...
- ports, station] = resolve_inputs(handles);
-
-load_base_workspace(handles)
-
-main(ip_address, version, ports, station);
+[inputs] = resolve_inputs(handles);
+zh_step = 0.01;
+load_base_workspace(handles, zh_step);
+clc;
+main(inputs);
 
 
 % --- Executes on button press in setup_boards_button.
 function setup_boards_button_Callback(hObject, eventdata, handles)
+[inputs] = resolve_inputs(handles);
+setup_boards(inputs);
 
-[ip_address, version,...
- ports, station] = resolve_inputs(handles);
+% --- Executes on button press in test_delay_button.
+function test_delay_button_Callback(hObject, eventdata, handles)
+[inputs] = resolve_inputs(handles);
+zh_step = 0.001;
+load_base_workspace(handles, zh_step);
+clc;
+test_delay(inputs);
 
-setup_boards(ip_address, version, ports);
 
-% --- Executes on button press in check_ports_button.
-function check_ports_button_Callback(hObject, eventdata, handles)
-[ip_address, version,...
- ports, station] = resolve_inputs(handles);
+% --- Executes on button press in save_data_checkbox.
+function save_data_checkbox_Callback(hObject, eventdata, handles)
+% hObject    handle to save_data_checkbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
 
-test_ports(version, station, ip_address, ports);
+% Hint: get(hObject,'Value') returns toggle state of save_data_checkbox
+
+
+% --- Executes on button press in test_ports_checkbox.
+function test_ports_checkbox_Callback(hObject, eventdata, handles)
+% hObject    handle to test_ports_checkbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of test_ports_checkbox
+
 
 function simulation_time_edit_Callback(hObject, eventdata, handles)
 % hObject    handle to simulation_time_edit (see GCBO)
@@ -190,10 +205,11 @@ end
 
 %% My Helper functions
 
-function [ip_address, version,...
-          ports, station] = resolve_inputs(handles)
+function [struct_of_inputs, ip_address, version,...
+          ports, station,...
+          save_data, test_ports] = resolve_inputs(handles)
 
-% resolves - ip addres
+% resolve - ip addres
 selected_ip_address = get(handles.ip_address_edit, 'String');
 % check IP address
 if(regexp(selected_ip_address, '^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$'))
@@ -203,36 +219,46 @@ else
   error('Error. \nGiven IP address, ''%s'' is not valid.', selected_ip_address)
 end
 
-% resolves - ports
+% resolve - ports
 ports_content =  cellstr(get(handles.ports_popup, 'String'));
 selected_ports_cell = ports_content(get(handles.ports_popup, 'Value'));
 ports = selected_ports_cell{:}(end);
 
-% resolves - version
+% resolve - version
 version_content =  cellstr(get(handles.version_popup, 'String'));
 selected_version_cell = version_content(get(handles.version_popup, 'Value'));
 version = selected_version_cell{:};
 
-% resolves - station
+% resolve - station
 if(get(handles.plant_radio_btn, 'Value') == 1) station = 'plant';
 else station = 'controller'; end;
 
+% resolve - options
+save_data = get(handles.save_data_checkbox, 'Value');
+test_ports = get(handles.test_ports_checkbox, 'Value');
+
+% return structure
+struct_of_inputs = struct('ip_address', ip_address,...
+                           'version', version,...
+                           'ports', ports,...
+                           'station', station,...
+                           'save_data', save_data,...
+                           'test_ports', test_ports);
 
 
-function load_base_workspace(handles)
-zh_step = 0.01; % global for all ZOH
+
+function load_base_workspace(handles, zh_step)
+%zh_step = 0.01; % global for all ZOH
 sim_run = str2double(get(handles.simulation_time_edit,'String'));
 sim_warmup = 1;
 assignin('base','zh_step',zh_step);
 assignin('base','sim_run',sim_run);
-assignin('base','sim_warmup',sim_warmup);
+assignin('base','sim_warmup',sim_warmup); % delete this
 
 
 
 function add_paths()
     addpath('functions',...
+            'functions/plot_functions',...
             'measured_data');
     addpath(genpath('sim_models'))
-
-
-

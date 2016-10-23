@@ -1,4 +1,4 @@
-function test_ports(version, station,...
+function [success] = test_ports(version, station,...
                                       decimal_ip, ports_combination )
 %UNTITLED Summary of this function goes here
 %   Detailed explanation goes here
@@ -7,40 +7,15 @@ open(model_name);
 model_path = strcat(model_name,'/'); % 'plant_PRG/';
 
 %% Setup blocks
-[ports_A, ports_B] = get_ports(station, ports_combination);
 
-udp_in_delay_A = get_block_struct(strcat(model_path, 'udp_in_delay_A'),...
-                                    decimal_ip, ports_A.in_delay, 'none');
-
-udp_out_delay_A = get_block_struct(strcat(model_path, 'udp_out_delay_A'),...
-                                    decimal_ip, ports_A.out_delay, 'none');
-
-udp_in_system_A = get_block_struct(strcat(model_path, 'udp_in_system_A'),...
-                                    decimal_ip, ports_A.in_system, 'none');
-
-udp_out_system_A = get_block_struct(strcat(model_path, 'udp_out_system_A'),...
-                                    decimal_ip, ports_A.out_system, 'none');
-
-udp_in_delay_B = get_block_struct(strcat(model_path, 'udp_in_delay_B'),...
-                                    decimal_ip, ports_B.in_delay, 'none');
-
-udp_out_delay_B = get_block_struct(strcat(model_path, 'udp_out_delay_B'),...
-                                    decimal_ip, ports_B.out_delay, 'none');
-
-udp_in_system_B = get_block_struct(strcat(model_path, 'udp_in_system_B'),...
-                                    decimal_ip, ports_B.in_system, 'none');
-                                
-udp_out_system_B = get_block_struct(strcat(model_path, 'udp_out_system_B'),...
-                                 decimal_ip, ports_B.out_system, 'none');
-                             
-                             % array of blocks
-blocks = [udp_in_delay_A, udp_out_delay_A, udp_in_system_A, udp_out_system_A,...
-          udp_in_delay_B, udp_out_delay_B, udp_in_system_B, udp_out_system_B];
-    
-% setup udp block parameters
-for b = blocks
-    set_udp_block(b);
-end
+block_names = {'udp_in_delay_A'; 'udp_out_delay_A';...
+               'udp_in_system_A'; 'udp_out_system_A';...
+               'udp_in_delay_B'; 'udp_out_delay_B';...
+               'udp_in_system_B'; 'udp_out_system_B'};
+              
+blocks = configure_parameters(block_names, model_name,...
+                              decimal_ip, ports_combination,...
+                              station, 0, 0);
 
 % set workspace name
 % receiving blocks send data to workspace
@@ -58,18 +33,28 @@ for k = 1:length(blocks)
 end
 
 %% Run test
+fprintf('\n\t=== Testing connection ports ===\n\n');
 sim(model_name)
 
+
 %% Process data
+success = true;
 for k = workspace_timeseries_name
     data_loop = eval(k{1}); % fast & dirty - for this purpose ok
     if(isempty(find(data_loop.Data > 0, 1)))
-        fprintf('\tConnection to ''%s'' failed\n', k{1})
+        fprintf('\tConnection to ''%s'' failed\n', k{1});
+        success = false;
     else
-        fprintf('\tConnection to ''%s'' succeed\n', k{1})
+        fprintf('\tConnection to ''%s'' succeed\n', k{1});
     end
 end
 
+if(~success)
+   fprintf(['\n\tConnection test failed, try different port combination\n' ...
+           '\tor setup new boards\n']);       
+end
+
+fprintf('\n\t=== End of ports'' test ===\n');
 
 end
 

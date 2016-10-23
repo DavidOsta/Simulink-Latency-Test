@@ -1,48 +1,32 @@
-function plot_data(path)
+function plot_all(delay_data, response_data)
 
 % Process and visualize measured data
 % arg - filename in the 'measured_data' folder,
 % e.g - process_and_plot_data('testSample')
 
 %% Processing
-%addpath('measured_data');
-data_path = sprintf('measured_data/%s/latency_data',path);
-data = load(data_path);
+
+ref_signal = delay_data.ref_signal;
+delayed_signal_A = delay_data.A_signal;
+delayed_signal_B = delay_data.B_signal;
+
+plant_response_A = response_data.A_response;
+plant_response_B = response_data.B_response;
 
 
-ref_signal = data.ref_signal;
-delayed_signal_A = data.delayed_signal_A;
-delayed_signal_B = data.delayed_signal_B;
+[data_A, data_B ] = ...
+    process_delay(ref_signal, delayed_signal_A, delayed_signal_B);
 
-plant_response_A = data.plant_response_A;
-plant_response_B = data.plant_response_B;
+A_delay = data_A.A_delay;
+A_missed_ticks = data_A.A_missticks;
 
+B_delay = data_B.B_delay;
+B_missed_ticks = data_B.B_missticks;
 
-cut = 1; % 401, 1st occur in delayed
-
-ref = ref_signal.Data(cut:end-1);
-A = delayed_signal_A.Data(cut:end-1);
-B = delayed_signal_B.Data(cut:end-1);
-
-col_split = length(ref) / 100; % number of columns
-ref_splited = reshape(ref, [], col_split);
-A_splited = reshape(A, [], col_split);
-B_splited = reshape(B, [], col_split);
-
-% suppress warning for missed ticks
-warning('off','signal:finddelay:noSignificantCorrelationVector');
-step = delayed_signal_A.Time(2) - delayed_signal_B.Time(1);
-to_milisec = step * 1000;
-
-A_delay = finddelay(ref_splited, A_splited) * to_milisec;
-B_delay = finddelay(ref_splited, B_splited) * to_milisec;
-
-A_delay_filtered = A_delay(A_delay > 0); % ~=
-A_missed_ticks = length(A_delay) - length(A_delay_filtered);
-
-B_delay_filtered = B_delay(B_delay > 0); % ~=
-B_missed_ticks = length(B_delay) - length(B_delay_filtered);
-
+upper_bound = 150; % turn off later
+lower_bound = 0;
+A_delay_filtered = A_delay(upper_bound > A_delay & A_delay > lower_bound);
+B_delay_filtered = B_delay(upper_bound > B_delay & B_delay > lower_bound);
 
 %% Visualization
 figure;
