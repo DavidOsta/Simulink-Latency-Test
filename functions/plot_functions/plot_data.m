@@ -8,6 +8,8 @@ function plot_data(path)
 resp_is_empty = isempty(response_data);
 delay_is_empty = isempty(delay_data);
 
+figure('Name',path,'NumberTitle','off');
+
 if(resp_is_empty && delay_is_empty)
     fprintf('\tthere are no data to plot\n');
 elseif(resp_is_empty)

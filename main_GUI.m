@@ -22,7 +22,7 @@ function varargout = main_GUI(varargin)
 
 % Edit the above text to modify the response to help main_GUI
 
-% Last Modified by GUIDE v2.5 22-Oct-2016 14:46:12
+% Last Modified by GUIDE v2.5 27-Oct-2016 17:42:33
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -65,8 +65,13 @@ guidata(hObject, handles);
 % local_host = '127.0.0.1';
 % set(handles.ip_address_edit, 'String', local_host);
 
-% init
-add_paths()
+% init lines
+
+add_subfolder_paths()
+
+update_gui_listbox(handles)
+set_matlab_version(handles)
+
 
 
 % --- Outputs from this function are returned to the command line.
@@ -152,7 +157,7 @@ function run_button_Callback(hObject, eventdata, handles)
 zh_step = 0.01;
 load_base_workspace(handles, zh_step);
 clc;
-main(inputs);
+main(inputs,handles);
 
 
 % --- Executes on button press in setup_boards_button.
@@ -166,7 +171,25 @@ function test_delay_button_Callback(hObject, eventdata, handles)
 zh_step = 0.001;
 load_base_workspace(handles, zh_step);
 clc;
-test_delay(inputs);
+test_delay(inputs, handles);
+
+% --- Executes on button press in plot_button.
+function plot_button_Callback(hObject, eventdata, handles)
+% hObject    handle to plot_button (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+%     contents = cellstr(get(handles.version_popup,'String')) % returns contents as cell array
+%      % returns value of selected item from dropdown
+%     contents{get(handles.version_popup,'Value')}
+
+
+list_of_folders = get(handles.measured_data_listbox,'String');
+selected_folder =...
+    list_of_folders{get(handles.measured_data_listbox,'Value')};
+plot_data(selected_folder);
+
+
 
 
 % --- Executes on button press in save_data_checkbox.
@@ -202,8 +225,29 @@ if ispc && isequal(get(hObject,'BackgroundColor'),...
     set(hObject,'BackgroundColor','white');
 end
 
+% --- Executes on selection change in measured_data_listbox.
+function measured_data_listbox_Callback(hObject, eventdata, handles)
+% hObject    handle to measured_data_listbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
 
-%% My Helper functions
+% Hints: contents = cellstr(get(hObject,'String')) returns measured_data_listbox contents as cell array
+%        contents{get(hObject,'Value')} returns selected item from measured_data_listbox
+
+
+% --- Executes during object creation, after setting all properties.
+function measured_data_listbox_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to measured_data_listbox (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: listbox controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+%% Helper functions
 
 function [struct_of_inputs, ip_address, version,...
           ports, station,...
@@ -246,19 +290,59 @@ struct_of_inputs = struct('ip_address', ip_address,...
                            'test_ports', test_ports);
 
 
-
+% load global parameters for simulink models
 function load_base_workspace(handles, zh_step)
-%zh_step = 0.01; % global for all ZOH
-sim_run = str2double(get(handles.simulation_time_edit,'String'));
-sim_warmup = 1;
-assignin('base','zh_step',zh_step);
-assignin('base','sim_run',sim_run);
-assignin('base','sim_warmup',sim_warmup); % delete this
+    %zh_step = 0.01; % global for all ZOH
+    sim_run = str2double(get(handles.simulation_time_edit,'String'));
+    start_packet_test = sim_run - 2;
+    assignin('base','zh_step',zh_step);
+    assignin('base','sim_run',sim_run);
+    assignin('base','start_packet_test',start_packet_test);
 
 
 
-function add_paths()
+% add paths to needed subfolders
+function add_subfolder_paths()
     addpath('functions',...
             'functions/plot_functions',...
             'measured_data');
     addpath(genpath('sim_models'))
+
+% resolves matlab version argument in gui
+function set_matlab_version(handles)
+    matlab_version = version;
+    version_name = matlab_version(end-6:end-1);
+
+    struct_versions = struct('R2015b',1,'R2014b',2,'R2013b',3);
+    fields = fieldnames(struct_versions);
+
+    for k = 1:length(fields)
+        name = fields{k};
+        if(strcmp(name,version_name))
+            set(handles.version_popup,'Value',struct_versions.(name));
+            break;
+        end
+    end        
+
+
+
+function edit3_Callback(hObject, eventdata, handles)
+% hObject    handle to edit3 (see GCBO)
+% eventdata  reserved - to be defined in a fture version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of edit3 as text
+%        str2double(get(hObject,'String')) returns contents of edit3 as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function edit3_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to edit3 (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end

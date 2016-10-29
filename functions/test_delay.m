@@ -1,4 +1,4 @@
-function test_delay(inputs)
+function test_delay(inputs, handles)
 %TEST_DELAY Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -15,8 +15,8 @@ model_name = strcat('delay_', station,'_', version);
 open(model_name);
 
 %% Setup blocks
-block_names = {'udp_in_delay_A'; 'udp_out_delay_A';...
-               'udp_in_delay_B'; 'udp_out_delay_B';};
+block_names = {'udp_in_delay_B'; 'udp_out_delay_B'};... %}; %...
+%                'udp_in_delay_A'; 'udp_out_delay_A'};
               
 in_sample_time = '0.0001';
 out_sample_time = '0.001';
@@ -42,6 +42,7 @@ end
 % save data - optional 
 if(run_sim && save_data_checkbox)
     path = save_measured_data(sim_out);
+    update_gui_listbox(handles);
     plot_data(path);
 end;
 

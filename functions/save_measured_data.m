@@ -11,8 +11,11 @@ if(length(ws_data) > 1)
     new_dir = sprintf('measured_data/%s', curr_time_folder); % because of windows10
     mkdir(new_dir);
     
-    data_struct = struct('delay_A',[],'delay_B', [], 'delay_ref', [],...
-                         'response_A', [],'response_B', []);
+%     data_struct = struct('delay_A',[],'delay_B', [], 'delay_ref', [],...
+%                          'response_A', [],'response_B', []);
+                     
+    data_struct = struct('packets',[],'delay_B', [], 'delay_ref', [],...
+                        'delay_rt',[],'response_B', []);
     
     data_fields = fieldnames(data_struct);
    

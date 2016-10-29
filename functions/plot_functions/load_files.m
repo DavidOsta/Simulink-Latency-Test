@@ -9,24 +9,25 @@ field = data_field{1};
 
 % delay
 ref_signal = data.(field).delay_ref;
-A_signal = data.(field).delay_A;
 B_signal = data.(field).delay_B;
+
+packets = data.(field).packets;
 
 if(~isempty(ref_signal))
     delay_data = struct('ref_signal', ref_signal,...
-                        'A_signal', A_signal,...
-                        'B_signal', B_signal);
+                        'B_signal', B_signal,...
+                        'packets', packets);
 else
     delay_data = [];
 end
 
 % response
-A_response = data.(field).response_A;
+% A_response = data.(field).response_A;
 B_response = data.(field).response_B;
 
-if(~isempty(A_response))
-    response_data = struct('A_response', A_response,...
-                           'B_response', B_response);
+if(~isempty(B_response))
+    response_data = struct('B_response', B_response); %,...
+%                            'A_response', A_response);
 else
     response_data = [];
 end

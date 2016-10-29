@@ -29,8 +29,33 @@ time = 1:1:length(delay_B);
 % time_len = 1:0.001:10000;
 upper_bound = inf;%150; % turn off later
 lower_bound = 0;
+% A_delay_filtered = A_delay(upper_bound > A_delay & A_delay > lower_bound);
 B_delay_filtered = delay_B(upper_bound > delay_B & delay_B > lower_bound);
 
+% A_time = time_len(200 > A_delay & A_delay > 0);
+% 
+% figure; hold on; grid on;
+% scatter(A_time, A_delay_filtered);
+% 
+% B_time = time_len(200 > A_delay & B_delay > 0);
+
+% scatter(B_time, B_delay_filtered);
+
+                                                              
+% plot(B_delay(B_delay > 0), 'o', 'LineWidth',1.5,...
+%                                  'MarkerSize',5,...
+%                                  'Color', color_B);                                       
+                                                                                  
+
+% for k = 1:length(A_delay)
+%     tick = A_delay(k);
+%     if tick > lower_bound && tick <upper_bound % missed tick
+%        m = 'o';
+%        A_tick_ok = plot(latency, time(k), tick, m, 'LineWidth',1.5,...
+%                                                     'MarkerSize',5,...
+%                                                     'Color', color_A);
+%     end
+% end
 
 time = 1:1:length(delay_B);
 for k = 1:length(delay_B)
@@ -50,7 +75,7 @@ title(latency, 'Delay during simulation','FontSize', 15);
 
 % subplot 2nd row  -  Histogram
 [num, version_year] = version;
-bin_method = 'auto'; % The Freedman-Diaconis rule
+bin_method = 'integers'; % The Freedman-Diaconis rule
 
 mean_B = mean(B_delay_filtered);
 std_B = std(B_delay_filtered);
@@ -64,7 +89,7 @@ if(str2double(version_year(end-4:end)) >= 2014)
 else
     hist(histo, B_delay_filtered, 'FaceColor', color_B);%, 'b');
 end
-% set(histo,'xtick',[80:1:200]); grid on
+set(histo,'xtick',[80:1:200]); grid on
 xlabel(histo, '$delay \: (msec)$', 'interpreter', 'latex','FontSize', 15);
 ylabel(histo, '$frequency \: (1)$', 'interpreter', 'latex','FontSize', 15);
 title(histo, 'Delay histogram','FontSize', 15);
@@ -72,10 +97,11 @@ annotation('textbox','Position',[.8 .85 .1 .05],...
                      'String',{sprintf('mean : %f [msec]', mean_B),...
                                sprintf('std : %f [msec]', std_B)});
 
-% Lost packets                  
+                           
 packets_ts = data.packets;
+
 packets = packets_ts.Data(packets_ts.Data > 0);
-figure
+
 plot(packets)
 
 [uniq_packets,indx,uniq_indx] = unique(packets);
@@ -84,9 +110,10 @@ len_packets = length(packets);
 len_uniq_packets = length(uniq_packets);
 
 lost_packets = len_packets - len_uniq_packets;
-lost_percent = (lost_packets / len_packets) * 100;
 
-fprintf('\t\n%.2f percent of lost packets\n', lost_percent);
+lost_percent = (lost_packets / len_packets) * 100
+
+fprintf('\t\n$d % lost packets\n');
 
 
 end

@@ -2,7 +2,7 @@ function plot_response( response_data )
 %PLOT_RESPONSE Summary of this function goes here
 %   Detailed explanation goes here
 
-figure; grid on; hold on;
+
 
 plant_response_A = response_data.A_response;
 plant_response_B = response_data.B_response;
@@ -15,7 +15,7 @@ plot(plant_response_A.Time, plant_response_A.Data,...
     'LineWidth', 1.5, 'Color', color_A);
 plot(plant_response_B.Time, plant_response_B.Data,...
     'LineWidth', 1.5, 'Color', color_B);
-
+grid on; hold on;
 xlabel('$time \: (s)$', 'interpreter', 'latex','FontSize', 15);
 ylabel('$y \: (1)$', 'interpreter', 'latex','FontSize', 15);
 title('Plant response - y','FontSize', 15);
