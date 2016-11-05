@@ -22,7 +22,7 @@ function varargout = main_GUI(varargin)
 
 % Edit the above text to modify the response to help main_GUI
 
-% Last Modified by GUIDE v2.5 27-Oct-2016 17:42:33
+% Last Modified by GUIDE v2.5 04-Nov-2016 20:42:06
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -153,25 +153,25 @@ end
 
 % --- Executes on button press in run_button.
 function run_button_Callback(hObject, eventdata, handles)
-[inputs] = resolve_inputs(handles);
-zh_step = 0.01;
+[gui_args_struct] = resolve_inputs(handles);
+zh_step = gui_args_struct.zh_step;
 load_base_workspace(handles, zh_step);
 clc;
-main(inputs,handles);
+run_callback(gui_args_struct,handles);
 
 
 % --- Executes on button press in setup_boards_button.
 function setup_boards_button_Callback(hObject, eventdata, handles)
-[inputs] = resolve_inputs(handles);
-setup_boards(inputs);
+[gui_args_struct] = resolve_inputs(handles);
+setup_boards(gui_args_struct);
 
 % --- Executes on button press in test_delay_button.
 function test_delay_button_Callback(hObject, eventdata, handles)
-[inputs] = resolve_inputs(handles);
-zh_step = 0.001;
+[gui_args_struct] = resolve_inputs(handles);
+zh_step = gui_args_struct.zh_step;
 load_base_workspace(handles, zh_step);
 clc;
-test_delay(inputs, handles);
+test_delay_callback(gui_args_struct, handles);
 
 % --- Executes on button press in plot_button.
 function plot_button_Callback(hObject, eventdata, handles)
@@ -187,7 +187,8 @@ function plot_button_Callback(hObject, eventdata, handles)
 list_of_folders = get(handles.measured_data_listbox,'String');
 selected_folder =...
     list_of_folders{get(handles.measured_data_listbox,'Value')};
-plot_data(selected_folder);
+Plotter(selected_folder);
+% plot_data(selected_folder);
 
 
 
@@ -247,11 +248,55 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+
+function packet_rec_rate_Callback(hObject, eventdata, handles)
+% hObject    handle to packet_rec_rate (see GCBO)
+% eventdata  reserved - to be defined in a fture version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of packet_snd_rate as text
+%        str2double(get(hObject,'String')) returns contents of packet_snd_rate as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function packet_rec_rate_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to packet_snd_rate (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+function packet_send_rate_Callback(hObject, eventdata, handles)
+% hObject    handle to packet_send_rate (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hints: get(hObject,'String') returns contents of packet_send_rate as text
+%        str2double(get(hObject,'String')) returns contents of packet_send_rate as a double
+
+
+% --- Executes during object creation, after setting all properties.
+function packet_send_rate_CreateFcn(hObject, eventdata, handles)
+% hObject    handle to packet_send_rate (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    empty - handles not created until after all CreateFcns called
+
+% Hint: edit controls usually have a white background on Windows.
+%       See ISPC and COMPUTER.
+if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
+    set(hObject,'BackgroundColor','white');
+end
+
+
+
+
 %% Helper functions
 
-function [struct_of_inputs, ip_address, version,...
-          ports, station,...
-          save_data, test_ports] = resolve_inputs(handles)
+function [gui_args_struct] = resolve_inputs(handles)
 
 % resolve - ip addres
 selected_ip_address = get(handles.ip_address_edit, 'String');
@@ -281,13 +326,33 @@ else station = 'controller'; end;
 save_data = get(handles.save_data_checkbox, 'Value');
 test_ports = get(handles.test_ports_checkbox, 'Value');
 
+% resolve - packet receive/send rate
+
+packet_in_rate = get(handles.packet_rec_rate,'String');
+[packet_in_rate_num, in_is_number] = str2num(packet_in_rate);
+
+packet_out_rate = get(handles.packet_send_rate,'String');
+[packet_out_rate_num, out_is_number] = str2num(packet_out_rate);
+if(~in_is_number)
+    error(sprintf('Packet receive rate "%s" is not a number',...
+        packet_rate_in));
+elseif(~out_is_number)
+    error(sprintf('Packet send rate "%s" is not a number',...
+        packet_out_rate));
+else
+    zh_step = packet_out_rate_num;
+end
+
 % return structure
-struct_of_inputs = struct('ip_address', ip_address,...
+gui_args_struct = struct('ip_address', ip_address,...
                            'version', version,...
                            'ports', ports,...
                            'station', station,...
                            'save_data', save_data,...
-                           'test_ports', test_ports);
+                           'test_ports', test_ports,...
+                           'packet_in_rate', packet_in_rate,...
+                           'packet_out_rate', packet_out_rate,...
+                           'zh_step', zh_step);
 
 
 % load global parameters for simulink models
@@ -322,27 +387,4 @@ function set_matlab_version(handles)
             set(handles.version_popup,'Value',struct_versions.(name));
             break;
         end
-    end        
-
-
-
-function edit3_Callback(hObject, eventdata, handles)
-% hObject    handle to edit3 (see GCBO)
-% eventdata  reserved - to be defined in a fture version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hints: get(hObject,'String') returns contents of edit3 as text
-%        str2double(get(hObject,'String')) returns contents of edit3 as a double
-
-
-% --- Executes during object creation, after setting all properties.
-function edit3_CreateFcn(hObject, eventdata, handles)
-% hObject    handle to edit3 (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    empty - handles not created until after all CreateFcns called
-
-% Hint: edit controls usually have a white background on Windows.
-%       See ISPC and COMPUTER.
-if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColor'))
-    set(hObject,'BackgroundColor','white');
-end
+    end

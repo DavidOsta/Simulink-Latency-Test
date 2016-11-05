@@ -1,45 +1,28 @@
-function [data_path] = save_measured_data(sim_out)
+function save_measured_data(file_name, folder_name,...
+                                          root_folder, sim_out)
 %SAVE_MEASURED_DATA Summary of this function goes here
 %   Detailed explanation goes here
 
-fprintf('\t=== Saving simulation results ===\n');
 
-ws_data = sim_out.get; % workspace names
+data_names_ws = sim_out.get; % workspace names
 
-if(length(ws_data) > 1)
-    curr_time_folder = strrep(datestr(now), ':', ';');
-    new_dir = sprintf('measured_data/%s', curr_time_folder); % because of windows10
-    mkdir(new_dir);
-    
-%     data_struct = struct('delay_A',[],'delay_B', [], 'delay_ref', [],...
-%                          'response_A', [],'response_B', []);
-                     
-    data_struct = struct('packets',[],'delay_B', [], 'delay_ref', [],...
-                        'delay_rt',[],'response_B', []);
-    
-    data_fields = fieldnames(data_struct);
-   
+if(length(data_names_ws) > 1) % something is saved to workspace
 
-    for fl = 1:length(data_fields)
-        fl_name = data_fields{fl};
-        for ws = 1:length(ws_data)
-            ws_name = ws_data{ws};
-            if(~isempty(strfind(ws_name,fl_name)))
-                data_struct.(fl_name) = sim_out.get(ws_name);
-                break;
-            end
-        end            
+    % get workspace data by their names and save them by their names
+    for k = 1:length(data_names_ws)
+        name_ws = data_names_ws{k};
+        temp_name = sim_out.get(name_ws);
+        eval(sprintf('%s = temp_name;',name_ws)); % i know ...
     end
-    
-    save_path = sprintf('%s/%s',new_dir, 'measured_data');
-    save(save_path, 'data_struct');
-    
-    fprintf('\n\tresults are stored in the folder: ''%s''\n', curr_time_folder);
-    data_path = curr_time_folder;
+
+    % save all variables with ws_ (workspace) suffix
+    save_path = sprintf('%s/%s/%s', root_folder, folder_name, file_name);
+    save(save_path, '-regexp', '^ws_');
+
+
 else
     fprintf('\n\tno data to be stored\n');
-    data_path = '';
+%     save_path = '';
 end
 
 end
-
