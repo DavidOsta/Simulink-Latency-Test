@@ -22,7 +22,7 @@ function varargout = main_GUI(varargin)
 
 % Edit the above text to modify the response to help main_GUI
 
-% Last Modified by GUIDE v2.5 04-Nov-2016 20:42:06
+% Last Modified by GUIDE v2.5 11-Nov-2016 18:28:42
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -85,13 +85,13 @@ function varargout = main_GUI_OutputFcn(hObject, eventdata, handles)
 varargout{1} = handles.output;
 
 
+%% Pop-ups
+
 % --- Executes on selection change in version_popup.
 function version_popup_Callback(hObject, eventdata, handles)
 % hObject    handle to version_popup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
-
 
 % --- Executes during object creation, after setting all properties.
 function version_popup_CreateFcn(hObject, eventdata, handles)
@@ -102,13 +102,11 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
 % --- Executes on selection change in ports_popup.
 function ports_popup_Callback(hObject, eventdata, handles)
 % hObject    handle to ports_popup (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
-
 
 % --- Executes during object creation, after setting all properties.
 function ports_popup_CreateFcn(hObject, eventdata, handles)
@@ -119,6 +117,7 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
+%% Radio buttons
 
 % --- Executes on button press in plant_radio_btn.
 function plant_radio_btn_Callback(hObject, eventdata, handles)
@@ -126,16 +125,29 @@ function plant_radio_btn_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-
-
 % --- Executes on button press in controller_radio_btn.
 function controller_radio_btn_Callback(hObject, eventdata, handles)
 % hObject    handle to controller_radio_btn (see GCBO)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
+% --- Executes on button press in config_A.
+function config_A_Callback(hObject, eventdata, handles)
+% hObject    handle to config_A (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
 
+% Hint: get(hObject,'Value') returns toggle state of config_A
 
+% --- Executes on button press in config_B.
+function config_B_Callback(hObject, eventdata, handles)
+% hObject    handle to config_B (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+
+% Hint: get(hObject,'Value') returns toggle state of config_B
+
+%% Edit fields
 
 function ip_address_edit_Callback(hObject, eventdata, handles)
 % hObject    handle to ip_address_edit (see GCBO)
@@ -151,13 +163,28 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
 end
 
 
+%% Run buttons
 % --- Executes on button press in run_button.
 function run_button_Callback(hObject, eventdata, handles)
-[gui_args_struct] = resolve_inputs(handles);
-zh_step = gui_args_struct.zh_step;
+clc
+input_resolver = InputResolver(handles, 'sim');
+zh_step = input_resolver.get_zh_step();
 load_base_workspace(handles, zh_step);
-clc;
-run_callback(gui_args_struct,handles);
+
+input_resolver.run_simulink_model();
+
+
+% --- Executes on button press in run_button_real_system.
+function run_button_real_system_Callback(hObject, eventdata, handles)
+% hObject    handle to run_button_real_system (see GCBO)
+% eventdata  reserved - to be defined in a future version of MATLAB
+% handles    structure with handles and user data (see GUIDATA)
+clc
+input_resolver = InputResolver(handles, 'real');
+zh_step = input_resolver.get_zh_step();
+load_base_workspace(handles, zh_step);
+
+input_resolver.run_simulink_model();
 
 
 % --- Executes on button press in setup_boards_button.
@@ -165,13 +192,18 @@ function setup_boards_button_Callback(hObject, eventdata, handles)
 [gui_args_struct] = resolve_inputs(handles);
 setup_boards(gui_args_struct);
 
-% --- Executes on button press in test_delay_button.
-function test_delay_button_Callback(hObject, eventdata, handles)
-[gui_args_struct] = resolve_inputs(handles);
-zh_step = gui_args_struct.zh_step;
+% --- Executes on button press in test_connection_button.
+function test_connection_button_Callback(hObject, eventdata, handles)
+clc
+input_resolver = InputResolver(handles, 'test');
+zh_step = input_resolver.get_zh_step();
 load_base_workspace(handles, zh_step);
-clc;
-test_delay_callback(gui_args_struct, handles);
+% test_delay_callback(input_resolver);
+success = input_resolver.test_ports_connection();
+if(success)
+    input_resolver.run_simulink_model();
+end
+
 
 % --- Executes on button press in plot_button.
 function plot_button_Callback(hObject, eventdata, handles)
@@ -187,10 +219,9 @@ function plot_button_Callback(hObject, eventdata, handles)
 list_of_folders = get(handles.measured_data_listbox,'String');
 selected_folder =...
     list_of_folders{get(handles.measured_data_listbox,'Value')};
-Plotter(selected_folder);
-% plot_data(selected_folder);
 
-
+plotter = Plotter(selected_folder);
+plotter.plot();
 
 
 % --- Executes on button press in save_data_checkbox.
@@ -200,16 +231,6 @@ function save_data_checkbox_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 % Hint: get(hObject,'Value') returns toggle state of save_data_checkbox
-
-
-% --- Executes on button press in test_ports_checkbox.
-function test_ports_checkbox_Callback(hObject, eventdata, handles)
-% hObject    handle to test_ports_checkbox (see GCBO)
-% eventdata  reserved - to be defined in a future version of MATLAB
-% handles    structure with handles and user data (see GUIDATA)
-
-% Hint: get(hObject,'Value') returns toggle state of test_ports_checkbox
-
 
 function simulation_time_edit_Callback(hObject, eventdata, handles)
 % hObject    handle to simulation_time_edit (see GCBO)
@@ -291,86 +312,21 @@ if ispc && isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgr
     set(hObject,'BackgroundColor','white');
 end
 
-
-
-
-%% Helper functions
-
-function [gui_args_struct] = resolve_inputs(handles)
-
-% resolve - ip addres
-selected_ip_address = get(handles.ip_address_edit, 'String');
-% check IP address
-if(regexp(selected_ip_address, '^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$'))
-    ip_address = selected_ip_address;
-else
-  ip_address = 'error';
-  error('Error. \nGiven IP address, ''%s'' is not valid.', selected_ip_address)
-end
-
-% resolve - ports
-ports_content =  cellstr(get(handles.ports_popup, 'String'));
-selected_ports_cell = ports_content(get(handles.ports_popup, 'Value'));
-ports = selected_ports_cell{:}(end);
-
-% resolve - version
-version_content =  cellstr(get(handles.version_popup, 'String'));
-selected_version_cell = version_content(get(handles.version_popup, 'Value'));
-version = selected_version_cell{:};
-
-% resolve - station
-if(get(handles.plant_radio_btn, 'Value') == 1) station = 'plant';
-else station = 'controller'; end;
-
-% resolve - options
-save_data = get(handles.save_data_checkbox, 'Value');
-test_ports = get(handles.test_ports_checkbox, 'Value');
-
-% resolve - packet receive/send rate
-
-packet_in_rate = get(handles.packet_rec_rate,'String');
-[packet_in_rate_num, in_is_number] = str2num(packet_in_rate);
-
-packet_out_rate = get(handles.packet_send_rate,'String');
-[packet_out_rate_num, out_is_number] = str2num(packet_out_rate);
-if(~in_is_number)
-    error(sprintf('Packet receive rate "%s" is not a number',...
-        packet_rate_in));
-elseif(~out_is_number)
-    error(sprintf('Packet send rate "%s" is not a number',...
-        packet_out_rate));
-else
-    zh_step = packet_out_rate_num;
-end
-
-% return structure
-gui_args_struct = struct('ip_address', ip_address,...
-                           'version', version,...
-                           'ports', ports,...
-                           'station', station,...
-                           'save_data', save_data,...
-                           'test_ports', test_ports,...
-                           'packet_in_rate', packet_in_rate,...
-                           'packet_out_rate', packet_out_rate,...
-                           'zh_step', zh_step);
-
-
 % load global parameters for simulink models
 function load_base_workspace(handles, zh_step)
     %zh_step = 0.01; % global for all ZOH
     sim_run = str2double(get(handles.simulation_time_edit,'String'));
-    start_packet_test = sim_run - 2;
+    start_packet_test = sim_run - 2; % for old model => delete
     assignin('base','zh_step',zh_step);
     assignin('base','sim_run',sim_run);
-    assignin('base','start_packet_test',start_packet_test);
-
-
+    assignin('base','start_packet_test',start_packet_test); % for old model => delete
 
 % add paths to needed subfolders
 function add_subfolder_paths()
     addpath('functions',...
             'functions/plot_functions',...
-            'measured_data');
+            'measured_data',...
+            'classes');
     addpath(genpath('sim_models'))
 
 % resolves matlab version argument in gui
