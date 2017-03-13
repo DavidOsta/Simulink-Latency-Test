@@ -1,14 +1,13 @@
 # Latency Experiment
-Matlab script for testing latency between two simulink models in Prague and
- Boston.
+Matlab script for testing latency between two simulink models communicating to each other via UDP protocol.
 
- Script was tested only on windows machines, for the versions:
-  * 2013B
-  * 2014B
-  * 2015B
+ Script was tested only on windows machines, for the following versions:
+  * R2013B
+  * R2014B
+  * R2015B
 
 ## How to use it
-Script has GUI, you can run it buy command **main_GUI** or simply run script  **main_GUI.m**
+Run main script **main_GUI.m**
 
 You can select following parameters:
   * Ip address - ip address of remote machine
@@ -16,13 +15,12 @@ You can select following parameters:
     board installation try B, C
   * Station
   * Matlab version
-  * Simulation time in seconds (only at your station)
 
 <p align="center">
 ![gui](/figs/gui.png?raw=true "GUI")
 </p>
 
-For the first time it is necessary to install boards
+For the first time it is necessary to install UDP boards
   1. Select your station and version
   2. Click on **Check Ports** button
   3. In loaded simulink model test all **I/O Packet** block
@@ -36,10 +34,7 @@ Otherwise just select parameters and click on **Run**
 
 
 ## What might go wrong
-* It seems that some PCs do not like simulink real time kernel.
-* Sometimes my pc just froze during simulation or worse I got a blue screen error.
-* I think that problem is in hardware compatibility (drivers)
-* I tried simulation on two lenovos and two acers and I only had problems with acer PCs
+* It seems that some PCs do not like simulink real time kernel especially PCs with windows 10. Problem might be in drivers
 
 ## Output for controller station should look like this
 
