@@ -18,9 +18,7 @@ You can select following parameters:
   * Station
   * Matlab version
 
-<p align="center">
-![gui](/figs/gui.png?raw=true "GUI")
-</p>
+![output](/figs/gui.png?raw=true "Output")
 
 For the first time it is necessary to install UDP boards
   1. Select your station and version
