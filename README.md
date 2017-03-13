@@ -6,6 +6,8 @@ Matlab script for testing latency between two simulink models communicating to e
   * R2014B
   * R2015B
 
+Documentation and tests are not finished.
+
 ## How to use it
 Run main script **main_GUI.m**
 
@@ -36,7 +38,7 @@ Otherwise just select parameters and click on **Run**
 ## What might go wrong
 * It seems that some PCs do not like simulink real time kernel especially PCs with windows 10. Problem might be in drivers
 
-## Output for controller station should look like this
+## Output should look like this
 
 ![output](/figs/output.png?raw=true "Output")
 
